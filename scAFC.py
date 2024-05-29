@@ -281,41 +281,33 @@ if __name__ == "__main__":
         args.epochs = 200
         args.n_clusters = 10
         args.n_input = 2200
-        #args.lambda_v4 = 0.02
 
     if args.name == 'darmanis':
-        args.lr = 0.0001#0.01
-        args.epochs = 200#300
+        args.lr = 0.0001
+        args.epochs = 200
         args.n_clusters = 8
         args.n_input = 6199
-        args.lambda_v4 = 0.04#0.02
+        args.lambda_v4 = 0.04
 
     if args.name == 'pollen':
-        args.lr = 0.001#0.001
+        args.lr = 0.001
         args.epochs = 200
         args.n_clusters = 11
         args.n_input = 6347
-        args.lambda_v4 = 0.03#0.03
+        args.lambda_v4 = 0.03
 
     if args.name == 'wang':
         args.lr = 0.0001
-        args.epochs = 100#100
+        args.epochs = 100
         args.n_clusters = 7
         args.n_input = 6702
-        args.lambda_v4 = 0.2#0.04
-        # args.lr = 0.0003
-        # args.epochs = 100  # 100
-        # args.n_clusters = 7
-        # args.n_input = 6702
-        # args.lambda_v4 = 0.08
+        args.lambda_v4 = 0.2
 
     if args.name == 'baron':
-        args.lr = 0.0005#0.05
-        args.epochs = 50#150
+        args.lr = 0.0005
+        args.epochs = 150
         args.n_clusters = 14
         args.n_input = 1864
-        #args.lambda_v3 = 0.5
-        #args.lambda_v4 = 0.02
 
     if args.name == 'melanoma':
         args.lr = 0.0005
@@ -325,12 +317,11 @@ if __name__ == "__main__":
         args.lambda_v4 = 0.02
 
     if args.name == 'Romanov':
-        args.lr = 0.001  # 0.001
-        args.epochs = 100  # 100
+        args.lr = 0.001
+        args.epochs = 100
         args.n_clusters = 7
         args.n_input = 3878
-        args.lambda_v3 = 1  # 1
-        #args.lambda_v4 = 0
+        args.lambda_v3 = 1
 
     if args.name == 'Bladder':
         args.lr = 0.005
@@ -350,7 +341,7 @@ if __name__ == "__main__":
         args.epochs = 260
         args.n_clusters = 6
         args.n_input = 5605
-        args.lambda_v4 = 0.04#0.04
+        args.lambda_v4 = 0.04
         args.lambda_v3 = 0.5
 
     args.pretrain_path = 'D:/scAFC/scAFC-master/pkl/preae_{}.pkl'.format(args.name)
