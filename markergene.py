@@ -407,7 +407,6 @@ if __name__ == "__main__":
         args.epochs = 100
         args.n_clusters = 15
         args.n_input = 2753
-        #args.lambda_v3 = 0.8
         args.lambda_v2 = 1
         args.lambda_v3 = 0.8
 
