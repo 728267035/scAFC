@@ -3,12 +3,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-#GAT通过在图神经网络（GNN）中引入注意力机制，使网络能够根据边的重要性动态地调整相邻节点之间的信息流
 class GraphAttentionLayer(nn.Module):
     """
     Simple GAT layer, similar to https://arxiv.org/abs/1710.10903
     """
-    #concat：是否在多头注意力机制中拼接输出，默认为True
+
     def __init__(self, in_features, out_features, dropout, alpha=0.2, concat=True):
         super(GraphAttentionLayer, self).__init__()
         self.dropout = dropout
@@ -17,7 +16,6 @@ class GraphAttentionLayer(nn.Module):
         self.alpha = alpha
         self.concat = concat
 
-        #定义一个可训练的权重矩阵W，这个矩阵用于将输入特征线性变换到输出空间
         self.W = nn.Parameter(torch.empty(size=(in_features, out_features)))
         nn.init.xavier_uniform_(self.W.data, gain=1.414)
         self.a = nn.Parameter(torch.empty(size=(2*out_features, 1)))
@@ -55,8 +53,6 @@ class GraphAttentionLayer(nn.Module):
     def __repr__(self):
         return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
 
-
-##实现稀疏矩阵与密集矩阵的乘法及其梯度计算
 class SpecialSpmmFunction(torch.autograd.Function):
     """Special function for only sparse region backpropataion layer."""
     @staticmethod
