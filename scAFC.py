@@ -258,10 +258,10 @@ if __name__ == "__main__":
     parser.add_argument('--preae_path', type=str, default='pkl')
     parser.add_argument('--gamma', type=float, default=0.97, help='learning rate decay')
     parser.add_argument('--decay_period', type=int, default=1, help='epochs between two learning rate decays')
-    parser.add_argument('--lambda_v1', type=float, default='0.1')
+    parser.add_argument('--lambda_v1', type=float, default='0.5')
     parser.add_argument('--lambda_v2', type=float, default='0.1')
     parser.add_argument('--lambda_v3', type=float, default='0.01')
-    parser.add_argument('--lambda_v4', type=float, default='0.01')
+    parser.add_argument('--lambda_v4', type=float, default='0.001')
     parser.add_argument('--seed', type=int, default=20, help='Random seed for reproducibility')
     parser.add_argument('--save', type=str, default='')
     args = parser.parse_args()
@@ -276,44 +276,45 @@ if __name__ == "__main__":
     # load data
     dataset = load_data(args.name)
 
-    if args.name == 'muraro':
+    if args.name == 'Muraro':
         args.lr = 0.001
         args.epochs = 200
         args.n_clusters = 10
         args.n_input = 2200
 
-    if args.name == 'darmanis':
+    if args.name == 'Darmanis':
         args.lr = 0.0001
         args.epochs = 200
         args.n_clusters = 8
         args.n_input = 6199
         args.lambda_v4 = 0.04
 
-    if args.name == 'pollen':
+    if args.name == 'Pollen':
         args.lr = 0.001
         args.epochs = 200
         args.n_clusters = 11
         args.n_input = 6347
-        args.lambda_v4 = 0.03
+        args.lambda_v4 = 0.04
 
-    if args.name == 'wang':
+    if args.name == 'Wang':
         args.lr = 0.0001
         args.epochs = 100
         args.n_clusters = 7
         args.n_input = 6702
         args.lambda_v4 = 0.2
 
-    if args.name == 'baron':
+    if args.name == 'Baron':
         args.lr = 0.0005
         args.epochs = 150
         args.n_clusters = 14
         args.n_input = 1864
 
-    if args.name == 'melanoma':
+    if args.name == 'Melanoma':
         args.lr = 0.0005
         args.epochs = 150
         args.n_clusters = 9
         args.n_input = 5072
+        args.lambda_v1 = 0.1
         args.lambda_v4 = 0.02
 
     if args.name == 'Romanov':
@@ -321,7 +322,6 @@ if __name__ == "__main__":
         args.epochs = 100
         args.n_clusters = 7
         args.n_input = 3878
-        args.lambda_v3 = 1
 
     if args.name == 'Bladder':
         args.lr = 0.005
@@ -329,20 +329,28 @@ if __name__ == "__main__":
         args.n_clusters = 4
         args.n_input = 2183
 
-    if args.name == 'QS_Diaphragm':
+    if args.name == 'Diaphragm':
         args.lr = 0.001
         args.epochs = 200
         args.n_clusters = 5
         args.n_input = 4167
-        #args.lambda_v4 = 0.02
 
-    if args.name == 'deng':
+    if args.name == 'Deng':
         args.lr = 0.001
         args.epochs = 260
         args.n_clusters = 6
         args.n_input = 5605
         args.lambda_v4 = 0.04
         args.lambda_v3 = 0.5
+
+    if args.name == 'Tosches':
+        args.lr = 0.001
+        args.epochs = 100
+        args.n_clusters = 15
+        args.n_input = 2753
+        #args.lambda_v3 = 0.8
+        args.lambda_v2 = 1
+        args.lambda_v3 = 0.8
 
     args.pretrain_path = 'D:/scAFC/scAFC-master/pkl/preae_{}.pkl'.format(args.name)
 
