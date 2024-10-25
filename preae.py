@@ -111,37 +111,37 @@ if __name__ == "__main__":
 
     args.pretrain_path = 'D:/scAFC/scAFC-master/pkl/{}.pkl'.format(args.name)
 
-    if args.name == 'muraro':
+    if args.name == 'Muraro':
         args.n_clusters = 10
         args.n_input = 2200
         args.epochs = 50
         args.lr = 0.0001
 
-    if args.name == 'darmanis':
+    if args.name == 'Darmanis':
         args.n_clusters = 8
         args.n_input = 6199
         args.epochs = 50
         args.lr = 0.0001
 
-    if args.name == 'pollen':
+    if args.name == 'Pollen':
         args.n_clusters = 11
         args.n_input = 6347
         args.epochs = 60
         args.lr = 0.0001
 
-    if args.name == 'wang':
+    if args.name == 'Wang':
         args.n_clusters = 7
         args.n_input = 6702
         args.epochs = 100#300
         args.lr = 0.001
 
-    if args.name == 'baron':
+    if args.name == 'Baron':
         args.n_clusters = 14
         args.n_input = 1864
         args.epochs = 100
         args.lr = 0.001
 
-    if args.name == 'melanoma':
+    if args.name == 'Melanoma':
         args.n_clusters = 9
         args.n_input = 5072
         args.epochs = 120
@@ -159,17 +159,24 @@ if __name__ == "__main__":
         args.epochs = 50
         args.lr = 0.001
 
-    if args.name == 'QS_Diaphragm':
+    if args.name == 'Diaphragm':
         args.n_clusters = 5
         args.n_input = 4167
         args.epochs =100
         args.lr = 0.0001
 
-    if args.name == 'deng':
+    if args.name == 'Deng':
         args.lr = 0.0001
         args.epochs = 80
         args.n_clusters = 6
         args.n_input = 5605
+   
+    if args.name == 'Tosches':
+        args.lr = 0.0001
+        args.epochs = 40
+        args.n_clusters = 15
+        args.n_input = 2753
+    
 
     x_path = 'D:/scAFC/scAFC-master/data/{}.txt'.format(args.name)
     y_path = 'D:/scAFC/scAFC-master/data/{}_labels.txt'.format(args.name)
