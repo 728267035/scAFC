@@ -281,6 +281,7 @@ if __name__ == "__main__":
         args.epochs = 200
         args.n_clusters = 10
         args.n_input = 2200
+        args.lambda_v4 = 0.02
 
     if args.name == 'Darmanis':
         args.lr = 0.0001
