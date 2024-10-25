@@ -79,7 +79,7 @@ def pretrain_ae(model, dataset, args, y):
             print('{} loss: {}'.format(epoch, loss))
             kmeans = KMeans(n_clusters=args.n_clusters, n_init=20).fit(z.data.cpu().numpy())
             y_pred = kmeans.fit_predict(z.data.cpu().numpy())
-            eva(y, y_pred, epoch)
+            #eva(y, y_pred, epoch)
 
 
         torch.save(model.state_dict(), 'D:/scAFC/scAFC-master/pkl/preae_{}.pkl'.format(args.name))
