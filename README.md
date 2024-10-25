@@ -1,12 +1,12 @@
 # scAFC: Adaptive Fusion Clustering of Single-cell RNA-seq data through Autoencoder and Graph Attention Networks
 
 ## Requirements:
-Python --- 3.7.0
-pytorch -- 1.8.1+cu111
-Numpy --- 1.21.6
-Pandas --- 1.3.5
-Scipy --- 1.7.3
-Sklearn --- 1.0.2
+- Python --- 3.7.0
+- pytorch -- 1.8.1+cu111
+- Numpy --- 1.21.6
+- Pandas --- 1.3.5
+- Scipy --- 1.7.3
+- Sklearn --- 1.0.2
 
 ## Datasets:
 Due to GitHub space limitations, the complete data files cannot be hosted directly on it. The detailed data files have been uploaded to OneDrive; please access them via the following link:https://1drv.ms/u/c/1aeb113afecf8673/Ee0Ms7i59U5Hg4pnks01mOoBDMfex17XMzI_RBiF-2QocQ
