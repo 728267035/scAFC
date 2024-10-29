@@ -277,81 +277,48 @@ if __name__ == "__main__":
     dataset = load_data(args.name)
 
     if args.name == 'Muraro':
-        args.lr = 0.001
-        args.epochs = 200
         args.n_clusters = 10
         args.n_input = 2200
-        args.lambda_v4 = 0.02
 
     if args.name == 'Darmanis':
-        args.lr = 0.0001
-        args.epochs = 200
         args.n_clusters = 8
         args.n_input = 6199
-        args.lambda_v4 = 0.04
 
     if args.name == 'Pollen':
-        args.lr = 0.001
-        args.epochs = 200
         args.n_clusters = 11
         args.n_input = 6347
-        args.lambda_v4 = 0.04
-
+        
     if args.name == 'Wang':
-        args.lr = 0.0001
-        args.epochs = 100
         args.n_clusters = 7
         args.n_input = 6702
-        args.lambda_v4 = 0.2
 
     if args.name == 'Baron':
-        args.lr = 0.0005
-        args.epochs = 150
         args.n_clusters = 14
         args.n_input = 1864
 
     if args.name == 'Melanoma':
-        args.lr = 0.0005
-        args.epochs = 150
         args.n_clusters = 9
         args.n_input = 5072
-        args.lambda_v1 = 0.1
-        args.lambda_v4 = 0.02
 
     if args.name == 'Romanov':
-        args.lr = 0.001
-        args.epochs = 100
         args.n_clusters = 7
         args.n_input = 3878
 
     if args.name == 'Bladder':
-        args.lr = 0.005
-        args.epochs = 200
         args.n_clusters = 4
         args.n_input = 2183
 
     if args.name == 'Diaphragm':
-        args.lr = 0.001
-        args.epochs = 200
         args.n_clusters = 5
         args.n_input = 4167
 
     if args.name == 'Deng':
-        args.lr = 0.001
-        args.epochs = 260
         args.n_clusters = 6
         args.n_input = 5605
-        args.lambda_v4 = 0.04
-        args.lambda_v3 = 0.5
 
     if args.name == 'Tosches':
-        args.lr = 0.001
-        args.epochs = 100
         args.n_clusters = 15
         args.n_input = 2753
-        #args.lambda_v3 = 0.8
-        args.lambda_v2 = 1
-        args.lambda_v3 = 0.8
 
     args.pretrain_path = 'D:/scAFC/scAFC-master/pkl/preae_{}.pkl'.format(args.name)
 
