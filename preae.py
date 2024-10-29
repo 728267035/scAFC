@@ -114,66 +114,44 @@ if __name__ == "__main__":
     if args.name == 'Muraro':
         args.n_clusters = 10
         args.n_input = 2200
-        args.epochs = 50
-        args.lr = 0.0001
 
     if args.name == 'Darmanis':
         args.n_clusters = 8
         args.n_input = 6199
-        args.epochs = 50
-        args.lr = 0.0001
 
     if args.name == 'Pollen':
         args.n_clusters = 11
         args.n_input = 6347
-        args.epochs = 60
-        args.lr = 0.0001
 
     if args.name == 'Wang':
         args.n_clusters = 7
         args.n_input = 6702
-        args.epochs = 100#300
-        args.lr = 0.001
 
     if args.name == 'Baron':
         args.n_clusters = 14
         args.n_input = 1864
-        args.epochs = 100
-        args.lr = 0.001
 
     if args.name == 'Melanoma':
         args.n_clusters = 9
         args.n_input = 5072
-        args.epochs = 120
-        args.lr = 0.001
 
     if args.name == 'Romanov':
         args.n_clusters = 7
         args.n_input = 3878
-        args.epochs = 80
-        args.lr = 0.0005
-
+        
     if args.name == 'Bladder':
         args.n_clusters = 4
         args.n_input = 2183
-        args.epochs = 50
-        args.lr = 0.001
 
     if args.name == 'Diaphragm':
         args.n_clusters = 5
         args.n_input = 4167
-        args.epochs =100
-        args.lr = 0.0001
 
     if args.name == 'Deng':
-        args.lr = 0.0001
-        args.epochs = 80
         args.n_clusters = 6
         args.n_input = 5605
    
     if args.name == 'Tosches':
-        args.lr = 0.0001
-        args.epochs = 40
         args.n_clusters = 15
         args.n_input = 2753
     
