@@ -13,6 +13,10 @@ from torch.nn.parameter import Parameter
 from torch.optim import Adam
 from torch.nn import Linear
 
+import scanpy as sc
+import matplotlib.pyplot as plt
+import os
+import pandas as pd
 from evaluation import eva
 from layers import GraphAttentionLayer
 from utils import load_data, load_graph
@@ -23,9 +27,9 @@ class AttentionLayer(nn.Module):
     def __init__(self, last_dim, n_num):
         super(AttentionLayer, self).__init__()
         self.n_num = n_num
-        self.fc1 = nn.Linear(n_num * last_dim, 500)
+        self.fc1 = nn.Linear(n_num * last_dim, int(last_dim/4))
         self.fc2 = nn.Linear(500, 100)
-        self.fc3 = nn.Linear(100, n_num)
+        self.fc3 = nn.Linear(int(last_dim/4), n_num)
         self.attention = nn.Softmax(dim=1)
         self.relu = nn.ReLU()
         self.T = 10
@@ -138,14 +142,11 @@ class AFC(nn.Module):
         adj = adj.to_dense()
 
         h = self.gat_1(x, adj)
-
         h = self.fuse1(h, tra1)
         h = self.gat_2(h, adj)
-
         h = self.fuse2(h, tra2)
         h = self.gat_3(h, adj)
         h = self.fuse3(h, z)
-
         h = self.linear(h)
 
         predict = F.softmax(h, dim=1)
@@ -193,7 +194,7 @@ def train(dataset, args):
                  n_z=args.n_z ).to(device)
     print(model)
     optimizer = Adam(model.parameters(), lr=args.lr)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, float(args.epochs))
+    #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, float(args.epochs))
 
     adj = load_graph(args.name, args.k)
     adj = adj.to(device)
@@ -211,11 +212,12 @@ def train(dataset, args):
     eva(y, y_pred_mapped, 'pae')
 
     M = np.zeros((args.epochs, 4))
-
+    max_ari =0.;
     for epoch in range(args.epochs):
-        model.train()
         if epoch % args.update_interval == 0:
-            _, tmp_q, pred, _ = model(data, adj)
+            model.eval()
+            with torch.no_grad():
+                _, tmp_q, pred, _ = model(data, adj)
 
             tmp_q = tmp_q.data
             p = target_distribution(tmp_q)
@@ -227,7 +229,13 @@ def train(dataset, args):
             eva(y, res2, str(epoch) + 'Z')
 
             M[epoch, 0], M[epoch, 1], M[epoch, 2], M[epoch, 3] = eva(y, res2, str(epoch) + 'Z')
+            tmp_ari = M[epoch,2]
+            if tmp_ari > max_ari:
+                max_ari = tmp_ari
+                torch.save(model.state_dict(), "tmp.pkl")
+                print("max epoch is {}".format(epoch))
 
+        model.train()
         x_bar, q, pred, _ = model(data, adj)
 
         kl_loss = F.kl_div(q.log(), p, reduction='batchmean')
@@ -252,48 +260,37 @@ def train(dataset, args):
     f1_max = np.max(M[:, 3])
     print('scAFC:    acc:', acc_max, ' nmi:', nmi_max, ' ari:', ari_max, ' f1:', f1_max)
 
-    trajectory_analysis(z.cpu().numpy(), y_pred_mapped, 'D:/scAFC/scAFC-master/img')
+    model.load_state_dict(torch.load("tmp.pkl", map_location='cpu'))
+    model.eval()
+    with torch.no_grad():
+        x_bar, _, _, z = model(data, adj)
 
+    y_pred = kmeans.fit_predict(z.data.cpu().numpy())
+    y_pred_mapped = remap_labels(y, y_pred)
+
+    x_path = 'data/{}.txt'.format(args.name)
+    x = np.loadtxt(x_path, dtype=float)
+    
+    trajectory_analysis(z.cpu().numpy(), y_pred_mapped, 'img', args)
 
     return [acc_max, nmi_max, ari_max, f1_max]
 
 
-import scanpy as sc
-import matplotlib.pyplot as plt
-import os
-import pandas as pd
 
-def trajectory_analysis(embedded_data, cluster_labels, output_folder):
+def trajectory_analysis(embedded_data, cluster_labels, output_folder, args):
 
     adata = sc.AnnData(embedded_data)
 
     adata.obs['clusters'] = pd.Categorical(cluster_labels)
 
-    # cluster_names = {
-    #     0: '16cell',
-    #     1: '4cell',
-    #     2: '8cell',
-    #     3: 'zygote',
-    #     4: 'blast',
-    #     5: '2cell'
-    # }#Deng
     cluster_names = {
-        0: 'endothelial',
-        1: 'lymphocyte',
-        2: 'macrophage',
-        3: 'mesenchymal',
-        4: 'skeletal muscle',
-    }  # Diaphragm
-    # cluster_names = {
-    #     0: 'bladder',
-    #     1: 'bladder urothelial',
-    #     2: 'endothelial',
-    #     3: 'leukocyte',
-    # }  #Bladder
-    # cluster_names = {
-    #     0: 'alpha', 1: 'ductal', 2: 'endothelial', 3: 'delta', 4: 'acinar', 5: 'beta',
-    #     6: 'unclear', 7: 'gamma', 8: 'mesenchymal', 9: 'epsilon'
-    # }#Muraro
+         0: '16cell',
+         1: '4cell',
+         2: '8cell',
+         3: 'zygote',
+         4: 'blast',
+         5: '2cell'
+    }#Deng
 
     adata.obs['clusters_names'] = adata.obs['clusters'].map(cluster_names)
     adata.obs['clusters_names'] = adata.obs['clusters_names'].astype('category')
@@ -306,7 +303,6 @@ def trajectory_analysis(embedded_data, cluster_labels, output_folder):
     # PAGA
     sc.tl.paga(adata, groups='clusters_names')
 
-    # 准备绘图，设置图形边框加粗和字体大小
     plt.rcParams['axes.linewidth'] = 2.5
     plt.rcParams['axes.titlesize'] = 30
     plt.rcParams['axes.labelsize'] = 28
@@ -316,7 +312,7 @@ def trajectory_analysis(embedded_data, cluster_labels, output_folder):
 
     sc.pl.umap(adata, color='clusters_names', ax=axs[0], show=False, title='UMAP')
 
-    sc.pl.paga(adata, ax=axs[1], show=False, title='PAGA', node_size_scale=2.0, fontsize=20) # 增大节点大小和字体大小
+    sc.pl.paga(adata, ax=axs[1], show=False, title='PAGA', node_size_scale=2.0, fontsize=20)
     axs[1].set_title('PAGA', color='black')
 
     plt.subplots_adjust(bottom=0.1)
@@ -324,9 +320,8 @@ def trajectory_analysis(embedded_data, cluster_labels, output_folder):
     handles, labels = axs[0].get_legend_handles_labels()
     fig.legend(handles, labels, loc='lower center', ncol=3, frameon=False, fontsize=25, markerscale=3)
 
-    # 保存图形
     plt.tight_layout(rect=[0, 0.2, 1, 1])
-    plt.savefig(os.path.join(output_folder, 'Diaphragm.png'), dpi=300)
+    plt.savefig(os.path.join(output_folder, args.name+'.png'), dpi=300)
     plt.show()
 
     if not os.path.exists(output_folder):
@@ -340,8 +335,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='train',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--name', type=str, default='Diaphragm')
-    parser.add_argument('--lr', type=float, default=0.001)
+    parser.add_argument('--name', type=str, default='Deng')
+    parser.add_argument('--lr', type=float, default=0.0001)
     parser.add_argument('--k',type=int, default=None)
     parser.add_argument('--epochs', type=int, default=50 )
     parser.add_argument('--n_clusters', default=10, type=int)
@@ -350,10 +345,10 @@ if __name__ == "__main__":
     parser.add_argument('--preae_path', type=str, default='pkl')
     parser.add_argument('--gamma', type=float, default=0.97, help='learning rate decay')
     parser.add_argument('--decay_period', type=int, default=1, help='epochs between two learning rate decays')
-    parser.add_argument('--lambda_v1', type=float, default='0.1')
+    parser.add_argument('--lambda_v1', type=float, default='1')
     parser.add_argument('--lambda_v2', type=float, default='0.1')
-    parser.add_argument('--lambda_v3', type=float, default='0.01')
-    parser.add_argument('--lambda_v4', type=float, default='0.01')
+    parser.add_argument('--lambda_v3', type=float, default='0.1')
+    parser.add_argument('--lambda_v4', type=float, default='0.001')
     parser.add_argument('--seed', type=int, default=20, help='Random seed for reproducibility')
     parser.add_argument('--save', type=str, default='')
     args = parser.parse_args()
@@ -368,83 +363,14 @@ if __name__ == "__main__":
     # load data
     dataset = load_data(args.name)
 
-    if args.name == 'Muraro':
-        args.lr = 0.001
-        args.epochs = 200
-        args.n_clusters = 10
-        args.n_input = 2200
-
-    if args.name == 'Darmanis':
-        args.lr = 0.0001#0.01
-        args.epochs = 200#300
-        args.n_clusters = 8
-        args.n_input = 6199
-        args.lambda_v4 = 0.04
-
-    if args.name == 'Pollen':
-        args.lr = 0.001
-        args.epochs = 200
-        args.n_clusters = 11
-        args.n_input = 6347
-        args.lambda_v4 = 0.04#0.03
-
-    if args.name == 'Wang':
-        args.lr = 0.0001
-        args.epochs = 100
-        args.n_clusters = 7
-        args.n_input = 6702
-        args.lambda_v4 = 0.2#0.04
-
-    if args.name == 'Baron':
-        args.lr = 0.0005
-        args.epochs = 150
-        args.n_clusters = 14
-        args.n_input = 1864
-
-    if args.name == 'Melanoma':
-        args.lr = 0.0005
-        args.epochs = 150
-        args.n_clusters = 9
-        args.n_input = 5072
-        args.lambda_v1 = 0.1
-        args.lambda_v4 = 0.02
-
-    if args.name == 'Romanov':
-        args.lr = 0.001
-        args.epochs = 100
-        args.n_clusters = 7
-        args.n_input = 3878
-
-    if args.name == 'Bladder':
-        args.lr = 0.005
-        args.epochs = 200
-        args.n_clusters = 4
-        args.n_input = 2183
-        #args.lambda_v4 = 0.05
-
-    if args.name == 'Diaphragm':
-        args.lr = 0.001
-        args.epochs = 200
-        args.n_clusters = 5
-        args.n_input = 4167
-
     if args.name == 'Deng':
         args.lr = 0.001
-        args.epochs = 260
+        args.epochs = 300
         args.n_clusters = 6
         args.n_input = 5605
-        args.lambda_v1 = 0.1
-        args.lambda_v4 = 0.04
+        args.lambda_v4 = 0.0001
 
-    if args.name == 'Tosches':
-        args.lr = 0.001
-        args.epochs = 100
-        args.n_clusters = 15
-        args.n_input = 2753
-        args.lambda_v2 = 1
-        args.lambda_v3 = 0.8
-
-    args.pretrain_path = 'D:/scAFC/scAFC-master/pkl/preae_{}.pkl'.format(args.name)
+    args.pretrain_path = 'pkl/preae_{}.pkl'.format(args.name)
 
     print(args)
     train(dataset, args)
