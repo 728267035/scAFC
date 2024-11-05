@@ -200,7 +200,7 @@ def train(dataset, args):
                  n_z=args.n_z ).to(device)
     print(model)
     optimizer = Adam(model.parameters(), lr=args.lr)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, float(args.epochs))
+    #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, float(args.epochs))
 
     adj = load_graph(args.name, args.k)
     adj = adj.to(device)
@@ -218,11 +218,13 @@ def train(dataset, args):
     eva(y, y_pred_mapped, 'pae')
 
     M = np.zeros((args.epochs, 4))
-
+    max_ari = 0.;
     for epoch in range(args.epochs):
         model.train()
         if epoch % args.update_interval == 0:
-            _, tmp_q, pred, _ = model(data, adj)
+            model.eval()
+            with torch.no_grad():
+                _, tmp_q, pred, _ = model(data, adj)
 
             tmp_q = tmp_q.data
             p = target_distribution(tmp_q)
@@ -234,7 +236,13 @@ def train(dataset, args):
             eva(y, res2, str(epoch) + 'Z')
 
             M[epoch, 0], M[epoch, 1], M[epoch, 2], M[epoch, 3] = eva(y, res2, str(epoch) + 'Z')
+            tmp_ari = M[epoch, 2]
+            if tmp_ari > max_ari:
+                max_ari = tmp_ari
+                torch.save(model.state_dict(), "tmp.pkl")
+                print("max epoch is {}".format(epoch))
 
+        model.train()
         x_bar, q, pred, _ = model(data, adj)
 
         kl_loss = F.kl_div(q.log(), p, reduction='batchmean')
@@ -259,8 +267,18 @@ def train(dataset, args):
     f1_max = np.max(M[:, 3])
     print('scAFC:    acc:', acc_max, ' nmi:', nmi_max, ' ari:', ari_max, ' f1:', f1_max)
 
-    integrate_and_visualize(z.data.cpu().numpy(), y_pred_mapped, dataset.x, 'D:/scAFC/scAFC-master/img/cell_label.csv',
-                            'D:/scAFC/scAFC-master/img/gene_name.csv')
+    model.load_state_dict(torch.load("tmp.pkl", map_location='cpu'))
+    model.eval()
+    with torch.no_grad():
+        x_bar, _, _, z = model(data, adj)
+
+    y_pred = kmeans.fit_predict(z.data.cpu().numpy())
+    y_pred_mapped = remap_labels(y, y_pred)
+    x_path = 'data/{}.txt'.format(args.name)
+    x = np.loadtxt(x_path, dtype=float)
+
+    integrate_and_visualize(z.data.cpu().numpy(), y_pred_mapped, dataset.x, 'D:/scAFC/scAFC-master/cell_label.csv',
+                            'D:/scAFC/scAFC-master/gene_name.csv')
     return [acc_max, nmi_max, ari_max, f1_max]
 
 def integrate_and_visualize(z, y_pred, gene_expression_data, cluster_mapping_csv, gene_mapping_csv):
@@ -299,7 +317,6 @@ def integrate_and_visualize(z, y_pred, gene_expression_data, cluster_mapping_csv
     except Exception as e:
         print(f"Error：{e}")
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='train',
@@ -322,8 +339,6 @@ if __name__ == "__main__":
     parser.add_argument('--save', type=str, default='')
     args = parser.parse_args()
 
-    #umap_save_path = 'D:/scAFC/scAFC-master/img/%s_umap.png' % (args.name)
-
     setup_seed(args.seed)
 
     args.cuda = torch.cuda.is_available()
@@ -339,76 +354,6 @@ if __name__ == "__main__":
         args.epochs = 200
         args.n_clusters = 10
         args.n_input = 2200
-
-    if args.name == 'Darmanis':
-        args.lr = 0.0001#0.01
-        args.epochs = 200#300
-        args.n_clusters = 8
-        args.n_input = 6199
-        args.lambda_v4 = 0.04
-
-    if args.name == 'Pollen':
-        args.lr = 0.001
-        args.epochs = 200
-        args.n_clusters = 11
-        args.n_input = 6347
-        args.lambda_v4 = 0.04#0.03
-
-    if args.name == 'Wang':
-        args.lr = 0.0001
-        args.epochs = 100
-        args.n_clusters = 7
-        args.n_input = 6702
-        args.lambda_v4 = 0.2#0.04
-
-    if args.name == 'Baron':
-        args.lr = 0.0005
-        args.epochs = 150
-        args.n_clusters = 14
-        args.n_input = 1864
-
-    if args.name == 'Melanoma':
-        args.lr = 0.0005
-        args.epochs = 150
-        args.n_clusters = 9
-        args.n_input = 5072
-        args.lambda_v1 = 0.1
-        args.lambda_v4 = 0.02
-
-    if args.name == 'Romanov':
-        args.lr = 0.001
-        args.epochs = 100
-        args.n_clusters = 7
-        args.n_input = 3878
-
-    if args.name == 'Bladder':
-        args.lr = 0.005
-        args.epochs = 200
-        args.n_clusters = 4
-        args.n_input = 2183
-        #args.lambda_v4 = 0.05
-
-    if args.name == 'Diaphragm':
-        args.lr = 0.001
-        args.epochs = 200
-        args.n_clusters = 5
-        args.n_input = 4167
-
-    if args.name == 'Deng':
-        args.lr = 0.001
-        args.epochs = 260
-        args.n_clusters = 6
-        args.n_input = 5605
-        args.lambda_v1 = 0.1
-        args.lambda_v4 = 0.04
-
-    if args.name == 'Tosches':
-        args.lr = 0.001
-        args.epochs = 100
-        args.n_clusters = 15
-        args.n_input = 2753
-        args.lambda_v2 = 1
-        args.lambda_v3 = 0.8
 
     args.pretrain_path = 'D:/scAFC/scAFC-master/pkl/preae_{}.pkl'.format(args.name)
 
