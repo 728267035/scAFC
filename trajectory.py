@@ -336,7 +336,7 @@ if __name__ == "__main__":
         description='train',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--name', type=str, default='Deng')
-    parser.add_argument('--lr', type=float, default=0.0001)
+    parser.add_argument('--lr', type=float, default=0.001)
     parser.add_argument('--k',type=int, default=None)
     parser.add_argument('--epochs', type=int, default=50 )
     parser.add_argument('--n_clusters', default=10, type=int)
@@ -347,7 +347,7 @@ if __name__ == "__main__":
     parser.add_argument('--decay_period', type=int, default=1, help='epochs between two learning rate decays')
     parser.add_argument('--lambda_v1', type=float, default='0.5')
     parser.add_argument('--lambda_v2', type=float, default='0.1')
-    parser.add_argument('--lambda_v3', type=float, default='0.1')
+    parser.add_argument('--lambda_v3', type=float, default='0.01')
     parser.add_argument('--lambda_v4', type=float, default='0.001')
     parser.add_argument('--seed', type=int, default=20, help='Random seed for reproducibility')
     parser.add_argument('--save', type=str, default='')
