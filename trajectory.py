@@ -345,7 +345,7 @@ if __name__ == "__main__":
     parser.add_argument('--preae_path', type=str, default='pkl')
     parser.add_argument('--gamma', type=float, default=0.97, help='learning rate decay')
     parser.add_argument('--decay_period', type=int, default=1, help='epochs between two learning rate decays')
-    parser.add_argument('--lambda_v1', type=float, default='1')
+    parser.add_argument('--lambda_v1', type=float, default='0.5')
     parser.add_argument('--lambda_v2', type=float, default='0.1')
     parser.add_argument('--lambda_v3', type=float, default='0.1')
     parser.add_argument('--lambda_v4', type=float, default='0.001')
