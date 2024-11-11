@@ -350,8 +350,6 @@ if __name__ == "__main__":
     dataset = load_data(args.name)
 
     if args.name == 'Muraro':
-        args.lr = 0.001
-        args.epochs = 200
         args.n_clusters = 10
         args.n_input = 2200
 
