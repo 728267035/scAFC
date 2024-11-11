@@ -364,11 +364,8 @@ if __name__ == "__main__":
     dataset = load_data(args.name)
 
     if args.name == 'Deng':
-        args.lr = 0.001
-        args.epochs = 300
         args.n_clusters = 6
         args.n_input = 5605
-        args.lambda_v4 = 0.0001
 
     args.pretrain_path = 'pkl/preae_{}.pkl'.format(args.name)
 
